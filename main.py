@@ -1,6 +1,5 @@
 #!/bin/python
 
-
 from evdev import *
 from evdev import ecodes as e
 import selectors
