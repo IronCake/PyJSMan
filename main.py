@@ -3,12 +3,18 @@
 from evdev import *
 from evdev import ecodes as e
 import selectors
-
+import setup as st
+import json
 #Store the Identity of the devices used, and grabs then (only recipient)
 controls = [InputDevice('/dev/input/event23'), InputDevice('/dev/input/event22')]
+selector = selectors.DefaultSelector()
 
-controls[0].grab()
-controls[1].grab()
+for i in range(0,len(controls)):
+    controls[i].grab()
+    selector.register(controls[i], selectors.EVENT_READ)
+
+
+
 
 #Specifying virtual device options
 keys = {
@@ -20,24 +26,13 @@ keys = {
         (e.ABS_THROTTLE, AbsInfo(0, 0, 255, 0, 0, 0))
     ]
 }
-
-
-#Create virtual device and print its capabilities
+#Create virtual device
 ui = UInput(keys, name="VirtualPad", version=0x3)
-
-
+#parsed = json.loads('"{0}"'.format(ui.capabilities()))
+#print(json.dumps(ui.capabilities(), indent=8, separators=(',', ':')))
 def map(val, in_min, in_max, out_min, out_max):
     return int((val - in_min) * (out_max - out_min) / (in_max - in_min) + out_min)
 
-
-
-#Define selectors to read multiple devices at same time
-selector = selectors.DefaultSelector()
-# This works because InputDevice has a `fileno()` method.
-for i in range(0,len(controls)):
-    selector.register(controls[i], selectors.EVENT_READ)
-
-#Print from either device
 while True:
     for key, mask in selector.select():
         device = key.fileobj
