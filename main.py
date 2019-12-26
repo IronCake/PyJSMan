@@ -6,7 +6,7 @@ import selectors
 import setup as st
 import json
 #Store the Identity of the devices used, and grabs then (only recipient)
-controls = [InputDevice('/dev/input/event23'), InputDevice('/dev/input/event22')]
+controls = [InputDevice('/dev/input/event31'), InputDevice('/dev/input/event256')]
 selector = selectors.DefaultSelector()
 
 for i in range(0,len(controls)):
@@ -37,6 +37,7 @@ while True:
     for key, mask in selector.select():
         device = key.fileobj
         for event in device.read():
+            print(event)
             if device.name == controls[0].name and event.type == e.EV_ABS and not event.code == e.ABS_THROTTLE:
                 ui.write(event.type, event.code, event.value)
                 ui.syn()
