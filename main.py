@@ -5,6 +5,9 @@ from evdev import ecodes as e
 import selectors
 import setup as st
 import json
+
+import uinput
+
 #Store the Identity of the devices used, and grabs then (only recipient)
 controls = [InputDevice('/dev/input/event31'), InputDevice('/dev/input/event256')]
 selector = selectors.DefaultSelector()
@@ -14,6 +17,12 @@ for i in range(0,len(controls)):
     selector.register(controls[i], selectors.EVENT_READ)
 
 
+events = (
+        uinput.BTN_JOYSTICK,
+        uinput.ABS_X + (0, 255, 0, 0),
+        uinput.ABS_Y + (0, 255, 0, 0),
+        )
+py_dev = uinput.Device(events)
 
 
 #Specifying virtual device options
@@ -27,7 +36,7 @@ keys = {
     ]
 }
 #Create virtual device
-ui = UInput(keys, name="VirtualPad", version=0x3)
+#ui = UInput(keys, name="VirtualPad", version=0x3)
 #parsed = json.loads('"{0}"'.format(ui.capabilities()))
 #print(json.dumps(ui.capabilities(), indent=8, separators=(',', ':')))
 def map(val, in_min, in_max, out_min, out_max):
@@ -38,16 +47,7 @@ while True:
         device = key.fileobj
         for event in device.read():
             print(event)
-            if device.name == controls[0].name and event.type == e.EV_ABS and not event.code == e.ABS_THROTTLE:
-                ui.write(event.type, event.code, event.value)
-                ui.syn()
-            if device.name == controls[1].name and event.type == e.EV_ABS and (event.code == 1 or event.code == 2):
-                if event.code == 1:
-                    val = map(event.value, 0, 255, 255, 127)
-                elif event.code == 2:
-                    val = map(event.value, 0, 255, 0, 127)
-                ui.write(event.type, e.ABS_THROTTLE, val)
-                ui.syn()
-            if device.name == controls[0].name and event.type == e.EV_KEY:
-                ui.write(event.type, event.code, event.value)
-                ui.syn()
+            if device.name == controls[1].name and event.type == e.EV_ABS and event.code == e.ABS_X:
+                py_dev.emit(uinput.ABS_X, event.value)
+
+        
