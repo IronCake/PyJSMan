@@ -6,7 +6,7 @@ import selectors
 import setup as st
 import json
 #Store the Identity of the devices used, and grabs then (only recipient)
-controls = [InputDevice('/dev/input/event31'), InputDevice('/dev/input/event256')]
+controls = [InputDevice('/dev/input/event8'), InputDevice('/dev/input/event9')]
 selector = selectors.DefaultSelector()
 
 for i in range(0,len(controls)):
